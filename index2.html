@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="icon" href="/favicon.png"/>
+    <title>RouterOS router configuration page</title>
+    <style type="text/css">
+      @import url(http://weloveiconfonts.com/api/?family=entypo);
+      @import url(https://fonts.googleapis.com/css?family=Roboto);
+      /* zocial */
+      [class*="entypo-"]:before {
+      font-family: 'entypo', sans-serif;
+      }
+      *,
+      *:before,
+      *:after {
+      -moz-box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box; 
+      }
+      h2 {
+      color:rgba(255,255,255,.8);
+      }
+      body {
+      background: #333;
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 12px;
+      }
+      form {
+      position:relative;
+      margin: 50px auto;
+      width: 350px;
+      height: auto;
+      }
+      input {
+      padding: 20px;
+      border-radius:7px;
+      border:0px;
+      background: rgba(255,255,255,.2);
+      display: block;
+      margin: 0px 0px 10px 0px;
+      width:360px;
+      color:white;
+      font-size:16px;
+      height: 54px;
+      }
+      input:focus {
+      outline-color: rgba(0,0,0,0);
+      background: rgba(255,255,255,.95);
+      color: #e74c3c;
+      }
+      button {
+      float:right;
+      height: 121px;
+      width: 60px;
+      border: 0px;
+      background: #e74c3c;
+      border-radius:7px;
+      padding: 10px;
+      color:white;
+      font-size:22px;
+      }
+      input::-webkit-input-placeholder {
+      color: white;
+      }
+      input:focus::-webkit-input-placeholder {
+      color: #e74c3c;
+      }
+      img {border: none}
+      img:hover {opacity: 0.8;}
+      h1 {
+      font-size: 1.5em;
+      display: inline;
+      margin-bottom: 10px;
+      }
+      fieldset {
+      margin-top: 15px;
+      background: #777;
+      padding: 10px;
+      border: 1px solid #777; 
+      -moz-border-radius: 7px; 
+      -webkit-border-radius: 7px;
+      }
+      #container {
+      width: 500px;
+      margin: 50px auto;
+      }
+      #box {
+      background-color: #999; 
+      -moz-border-radius: 7px; 
+      -webkit-border-radius: 7px; 
+      border: 1px solid #c1c1c1; 
+      padding: 30px;
+      }
+      .floater {float: left; margin-right: 10px;}
+      .floater label {display: block; text-align: center;}
+      #error {
+      display:none;
+      color:red;
+      padding: 1em 0 0 0;
+      }
+    </style>
+    <script>
+      function get(id) {
+          return document.getElementById(id);
+      }
+      function trim(str) {
+          return str.replace(/^\s+|\s+$/g, '');
+      }
+      function login(user, pwd, autologin) {
+          var expires = new Date();
+          expires.setTime(expires.getTime() + (30 * 24 * 60 * 60 * 1000));
+          document.cookie = 'username=' + user +
+              '; expires=' + expires.toGMTString() + '; path=/';
+      
+          window.name = (autologin ? 'autologin=' : 'login=') + user + '|' + pwd;
+          window.location.replace('/webfig/' + window.location.hash);
+      }
+      function dologin() {
+          login(get('name').value, get('password').value);
+      }
+      function loaded() {
+          var p = window.name.split('=');
+          if (p[0] == 'error' && p[1]) {
+              var err = get('error');
+              err.appendChild(document.createTextNode(p[1]));
+              err.style.display = 'block';
+          } else if (p[0] != 'noautologin' || p[1] != 1) {
+              var user = '';
+              if (user) {
+                  login(user, '', true);
+                  return;
+              }
+          }
+          window.name = '';
+      
+          document.onkeydown = function(e) {
+              e = e || event;
+              if (e.keyCode == 13) {
+                  dologin();
+                  return false;
+              }
+              return true;
+          };
+      
+          var username = null;
+          var cookies = document.cookie.split(';');
+          for (var i in cookies) {
+      	var c = trim(cookies[i]).split('=');
+      	if (c[0] == 'username') {
+      	    username = c[1];
+      	    break;
+      	}
+          }
+          
+          if (username != null) {
+      	get('name').value = username;
+      	get('password').focus();
+          } else {
+              get('name').value = 'admin';
+      	get('name').focus();
+          }
+      }
+    </script>
+  </head>
+  <body onload="loaded()">
+    <div id="container">
+      <div id="box">
+        <a href="http://mikrotik.com"><img src="mikrotik_logo.png" style="float: right;" /></a>
+        <br style="clear: both;"/>
+        <br style="clear: both;"/>  
+        <h1>WebFig Administrator</h1>
+        <p>Anda telah terhubung ke router. Silahkan Login. Jika perangkat ini tidak Anda miliki, hubungi administrator jaringan lokal Anda.</p>
+        <table id="login">
+          <form action="">
+            <h2><span class="entypo-login"><i class="fa fa-sign-in"></i></span> Login</h2>
+            <button onclick="dologin()" ondragstart="return false;" class="submit"><span class="entypo-lock"><i class="fa fa-lock"></i></span></button>
+            <input type="text" class="user" id="name" placeholder="username"/>
+            <input type="password" class="pass" id="password" placeholder="password"/>
+          </form>
+        </table>
+        <fieldset>
+          <div class="floater"> 
+            <a href="http://www.mikrotik.com/download/winbox.exe"><img src="winbox.png"/></a><br/>
+            <label>Winbox</label>
+          </div>
+          <div class="floater"> 
+            <a href="telnet://192.168.100.1"><img src="console.png"/></a><br/>
+            <label>Telnet</label>
+          </div>
+          <div class="floater"> 
+            <a href="/graphs"><img src="green.png"/></a><br/>
+            <label>Graphs</label>
+          </div>
+          <div class="floater"> 
+            <a href="/help/license.html"><img src="license.png"/></a><br/>
+            <label>License</label>
+          </div>
+          <div class="floater"> 
+            <a href="http://wiki.mikrotik.com"><img src="help.png"/></a><br/>
+            <label>Help</label>
+          </div>
+        </fieldset>
+        <br style="clear: both"/> 
+        <div style="float: right; font-size:11px">&copy; MikroTik</div>
+        <div style="float: left;font-size:11px">Skin by buananetpbun.github.io</div>
+      </div>
+    </div>
+  </body>
+</html>
